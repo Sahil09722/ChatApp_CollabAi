@@ -1,11 +1,24 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: process.env.VITE_API_URL });
+const API = axios.create({
+  baseURL: process.env.REACT_APP_API_URL,
+});
 
-API.interceptors.request.use((req) => {
-  const user = localStorage.getItem("user");
-  if (user) req.headers.Authorization = `Bearer ${JSON.parse(user).token}`;
-  return req;
+console.log("API base URL:", process.env.REACT_APP_API_URL);
+
+// Add token interceptor
+API.interceptors.request.use((config) => {
+  try {
+    const user = localStorage.getItem("user");
+    if (user) {
+      const { token } = JSON.parse(user);
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (e) {
+    console.error("Error reading token:", e);
+  }
+
+  return config;
 });
 
 export default API;
